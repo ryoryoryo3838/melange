@@ -1458,11 +1458,11 @@ and compile_prim (prim_info : Lam.prim_info)
   | { primitive = Psequand; args = [ l; r ]; _ } ->
       compile_sequand l r lambda_cxt
   | { primitive = Psequor; args = [ l; r ] } -> compile_sequor l r lambda_cxt
-  | { primitive = Pdebugger; _ } ->
+  | { primitive = Pdebugger; loc } ->
       (* [%bs.debugger] guarantees that the expression does not matter
          TODO: make it even safer *)
       Js_output.output_of_block_and_expression lambda_cxt.continuation
-        S.debugger_block E.unit
+        (S.debugger_block ~loc ()) E.unit
       (* TODO:
          check the arity of fn before wrapping it
          we need mark something that such eta-conversion can not be simplified in some cases

@@ -328,8 +328,9 @@ let rec try_optimize_curry cxt len function_id =
   Curry_gen.pp_optimize_curry cxt len;
   paren_group cxt 1 (fun _ -> expression ~level:1 cxt function_id)
 
-and pp_function ~return_unit ~is_method cxt ~fn_state (l : Ident.t list)
+and pp_function ?loc ~return_unit ~is_method cxt ~fn_state (l : Ident.t list)
     (b : J.block) (env : Js_fun_env.t) : cxt =
+  write_sourcemap cxt loc;
   match b with
   | [
    {
@@ -924,7 +925,7 @@ and variable_declaration top cxt (variable : J.variable_declaration) : cxt =
       | _ -> (
           match e.expression_desc with
           | Fun (is_method, params, b, env, return_unit) ->
-              pp_function ~return_unit ~is_method cxt
+              pp_function ?loc:e.loc ~return_unit ~is_method cxt
                 ~fn_state:(if top then Name_top name else Name_non_top name)
                 params b env
           | _ ->
