@@ -73,11 +73,11 @@ module L = Js_dump_lit
 
 type cxt = {
   scope : Ext_pp_scope.t;
-  sourcemap : Js_sourcemap.t option;
+  sourcemap : Js_sourcemap.t option ref;
   pp : Ext_pp.t;
 }
 
-let make pp sourcemap scope = { scope; sourcemap; pp }
+let make pp sourcemap scope = { scope; sourcemap = ref sourcemap; pp }
 let update_scope cxt scope = { cxt with scope }
 let ident cxt id = update_scope cxt (Ext_pp_scope.ident cxt.scope cxt.pp id)
 let string cxt s = Ext_pp.string cxt.pp s
@@ -107,8 +107,9 @@ let at_least_two_lines cxt = Ext_pp.at_least_two_lines cxt.pp
 let flush cxt () = Ext_pp.flush cxt.pp ()
 
 let write_sourcemap cxt opt_loc =
-  match (opt_loc, cxt.sourcemap) with
-  | Some loc, Some sourcemap -> Js_sourcemap.write sourcemap loc
+  match (opt_loc, !(cxt.sourcemap)) with
+  | Some loc, Some sourcemap ->
+      cxt.sourcemap := Some (Js_sourcemap.add_mapping sourcemap ~pp:cxt.pp loc)
   | _ -> ()
 
 module Curry_gen = struct
@@ -536,10 +537,10 @@ and vident cxt (v : J.vident) =
       cxt
 
 (* The higher the level, the more likely that inner has to add parens *)
-and expression ~level:l cxt (exp : J.expression) : cxt =
+and expression ~level cxt (exp : J.expression) : cxt =
   write_sourcemap cxt exp.loc;
   pp_comment_option cxt exp.comment;
-  expression_desc cxt ~level:l exp.expression_desc
+  expression_desc cxt ~level exp.expression_desc
 
 and expression_desc cxt ~(level : int) x : cxt =
   match x with
@@ -1289,6 +1290,9 @@ let string_of_expression (e : J.expression) =
   flush cxt ();
   Buffer.contents buffer
 
+type ret_cxt = { scope : Ext_pp_scope.t; sourcemap : Js_sourcemap.t option }
+
 let statements top scope pp sourcemap b =
   let cxt = make pp sourcemap scope in
-  (statements top cxt b).scope
+  let cxt = statements top cxt b in
+  { scope = cxt.scope; sourcemap = !(cxt.sourcemap) }

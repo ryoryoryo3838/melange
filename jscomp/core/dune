@@ -14,7 +14,7 @@
   melange-compiler-libs
   outcome_printer
   js_parser
-  sourcemaps))
+  sourcemap))
 
 (rule
  (targets js_fold.ml)

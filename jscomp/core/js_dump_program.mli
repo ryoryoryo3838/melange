@@ -32,4 +32,4 @@ val pp_deps_program :
   Ext_pp.t ->
   ?sourcemap:Js_sourcemap.t ->
   J.deps_program ->
-  unit
+  Js_sourcemap.t option

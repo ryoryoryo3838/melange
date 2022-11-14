@@ -60,7 +60,8 @@ let extract_file_comments (x : J.deps_program) =
 let program f cxt sourcemap (x : J.program) =
   P.at_least_two_lines f;
   let cxt = Js_dump.statements true cxt f sourcemap x.block in
-  Js_dump_import_export.exports cxt f x.exports
+  let scope' = Js_dump_import_export.exports cxt.scope f x.exports in
+  { cxt with scope = scope' }
 
 let dump_program (x : J.program) oc =
   let pp = P.from_channel oc in
@@ -95,7 +96,8 @@ let es6_program ~package_info ~output_info ~output_dir f sourcemap
   in
   let () = P.at_least_two_lines f in
   let cxt = Js_dump.statements true cxt f sourcemap x.program.block in
-  Js_dump_import_export.es6_export cxt f x.program.exports
+  let scope' = Js_dump_import_export.es6_export cxt.scope f x.program.exports in
+  { cxt with scope = scope' }
 
 (** Make sure github linguist happy
     {[
@@ -110,25 +112,29 @@ let pp_deps_program ~package_info ~(output_info : Js_packages_info.output_info)
   if not !Js_config.no_version_header then (
     P.string f Bs_version.header;
     P.newline f);
-  if deps_program_is_empty program then P.string f empty_explanation
+  if deps_program_is_empty program then (
     (* This is empty module, it won't be referred anywhere *)
+    P.string f empty_explanation;
+    None)
   else
     let comments, program = extract_file_comments program in
     Ext_list.rev_iter comments (fun comment ->
         P.string f comment;
         P.newline f);
     let output_dir = Filename.dirname output_prefix in
-    ignore
-      (match output_info.module_system with
+    let { Js_dump.sourcemap; _ } =
+      match output_info.module_system with
       | Es6 | Es6_global ->
           es6_program ~package_info ~output_dir ~output_info f sourcemap program
       | NodeJS ->
           node_program ~package_info ~output_info ~output_dir f sourcemap
-            program);
+            program
+    in
     P.newline f;
     P.string f
       (match program.side_effect with
       | None -> "/* No side effect */"
       | Some v -> Printf.sprintf "/* %s Not a pure module */" v);
     P.newline f;
-    P.flush f ()
+    P.flush f ();
+    sourcemap
