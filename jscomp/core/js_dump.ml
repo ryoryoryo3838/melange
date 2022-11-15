@@ -330,7 +330,6 @@ let rec try_optimize_curry cxt len function_id =
 
 and pp_function ?loc ~return_unit ~is_method cxt ~fn_state (l : Ident.t list)
     (b : J.block) (env : Js_fun_env.t) : cxt =
-  write_sourcemap cxt loc;
   match b with
   | [
    {
@@ -396,6 +395,9 @@ and pp_function ?loc ~return_unit ~is_method cxt ~fn_state (l : Ident.t list)
       *)
       let inner_cxt = sub_scope outer_cxt set_env in
       let param_body () : unit =
+        (* The OCaml `fun ... -> ..` location corresponds to the generated
+           function parameter list. *)
+        write_sourcemap cxt loc;
         if is_method then (
           match l with
           | [] -> assert false
