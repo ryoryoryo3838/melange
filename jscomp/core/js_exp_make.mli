@@ -76,10 +76,14 @@ val runtime_call :
                                 t
 
 val pure_runtime_call :
-  string -> (* module_name *)
-            string -> (* fn_name *)
-                      t list -> (* args *)
-                                t
+  ?loc:Location.t ->
+  string ->
+  (* module_name *)
+  string ->
+  (* fn_name *)
+  t list ->
+  (* args *)
+  t
 
 val runtime_ref : string -> string -> t
 val public_method_call : string -> t -> t -> Int32.t -> t list -> t
@@ -317,4 +321,4 @@ val is_undef : ?loc:Location.t -> ?comment:string -> t -> t
 val for_sure_js_null_undefined : J.expression -> bool
 val is_null_undefined : ?loc:Location.t -> ?comment:string -> t -> t
 val resolve_and_apply : string -> t list -> t
-val make_exception : string -> t
+val make_exception : loc:Location.t -> string -> t

@@ -112,8 +112,8 @@ let runtime_call module_name fn_name args =
     (runtime_var_dot module_name fn_name)
     args
 
-let pure_runtime_call module_name fn_name args =
-  call ~comment:Literals.pure ~info:Js_call_info.builtin_runtime_call
+let pure_runtime_call ?loc module_name fn_name args =
+  call ?loc ~comment:Literals.pure ~info:Js_call_info.builtin_runtime_call
     (runtime_var_dot module_name fn_name)
     args
 
@@ -1201,5 +1201,5 @@ let resolve_and_apply (s : string) (args : t list) : t =
     (runtime_call Js_runtime_modules.external_polyfill "resolve" [ str s ])
     args
 
-let make_exception (s : string) =
-  pure_runtime_call Js_runtime_modules.exceptions Literals.create [ str s ]
+let make_exception ~loc (s : string) =
+  pure_runtime_call ~loc Js_runtime_modules.exceptions Literals.create [ str s ]

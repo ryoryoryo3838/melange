@@ -541,8 +541,8 @@ and vident cxt (v : J.vident) =
 
 (* The higher the level, the more likely that inner has to add parens *)
 and expression ~level cxt (exp : J.expression) : cxt =
-  write_sourcemap cxt exp.loc;
   pp_comment_option cxt exp.comment;
+  write_sourcemap cxt exp.loc;
   expression_desc cxt ~level exp.expression_desc
 
 and expression_desc cxt ~(level : int) x : cxt =
@@ -956,8 +956,10 @@ and pp_comment_option cxt comment =
   match comment with None -> () | Some x -> pp_comment cxt x
 
 (* and pp_loc_option f loc =  *)
-and statement top cxt ({ statement_desc = s; comment; _ } : J.statement) : cxt =
+and statement top cxt ({ statement_desc = s; comment; loc } : J.statement) : cxt
+    =
   pp_comment_option cxt comment;
+  write_sourcemap cxt loc;
   statement_desc top cxt s
 
 and statement_desc top cxt (s : J.statement_desc) : cxt =

@@ -39,8 +39,10 @@ let ensure_value_unit (st : Lam_compile_context.continuation) e : E.t =
 let translate loc (cxt : Lam_compile_context.t) (prim : Lam_primitive.t)
     (args : J.expression list) : J.expression =
   match prim with
-  | Pis_not_none -> Js_of_lam_option.is_not_none (Ext_list.singleton_exn args)
-  | Pcreate_extension s -> E.make_exception s
+  | Pis_not_none ->
+      Js_of_lam_option.is_not_none
+        { (Ext_list.singleton_exn args) with loc = Some loc }
+  | Pcreate_extension s -> E.make_exception ~loc s
   | Pwrap_exn ->
       E.runtime_call Js_runtime_modules.caml_js_exceptions
         "internalToOCamlException" args
@@ -106,7 +108,7 @@ let translate loc (cxt : Lam_compile_context.t) (prim : Lam_primitive.t)
   | Psome_not_nest -> E.optional_not_nest_block (Ext_list.singleton_exn args)
   | Pmakeblock (tag, tag_info, mutable_flag) ->
       (* RUNTIME *)
-      Js_of_lam_block.make_block
+      Js_of_lam_block.make_block ~loc
         (Js_op_util.of_lam_mutable_flag mutable_flag)
         tag_info (E.small_int tag) args
   | Pval_from_option ->
@@ -295,7 +297,7 @@ let translate loc (cxt : Lam_compile_context.t) (prim : Lam_primitive.t)
   (* Test if the argument is a block or an immediate integer *)
   | Pjs_object_create _ -> assert false
   | Pjs_call { arg_types; ffi } ->
-      Lam_compile_external_call.translate_ffi cxt arg_types ffi args
+      Lam_compile_external_call.translate_ffi cxt ~loc arg_types ffi args
   (* FIXME, this can be removed later *)
   | Pisint -> E.is_type_number (Ext_list.singleton_exn args)
   | Pis_poly_var_const -> E.is_type_string (Ext_list.singleton_exn args)

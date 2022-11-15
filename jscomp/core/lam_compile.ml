@@ -1443,13 +1443,13 @@ and compile_prim (prim_info : Lam.prim_info)
       | Fld_module { name = field } ->
           compile_external_field lambda_cxt id field
       | _ -> assert false)
-  | { primitive = Praise; args = [ e ]; _ } -> (
+  | { primitive = Praise; args = [ e ]; loc } -> (
       match
         compile_lambda { lambda_cxt with continuation = NeedValue Not_tail } e
       with
       | { block; value = Some v } ->
           Js_output.make
-            (Ext_list.append_one block (S.throw_stmt v))
+            (Ext_list.append_one block (S.throw_stmt ~loc v))
             ~value:E.undefined ~output_finished:True
       (* FIXME -- breaks invariant when NeedValue, reason is that js [throw] is statement
          while ocaml it's an expression, we should remove such things in lambda optimizations
