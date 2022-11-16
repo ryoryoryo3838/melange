@@ -913,7 +913,7 @@ and array_element_list cxt (el : E.t list) : cxt =
 and arguments cxt (l : E.t list) : cxt =
   iter_lst cxt l (expression ~level:1) comma_sp
 
-and variable_declaration top cxt (variable : J.variable_declaration) : cxt =
+and variable_declaration ~top cxt (variable : J.variable_declaration) : cxt =
   (* TODO: print [const/var] for different backends  *)
   match variable with
   | { ident = i; value = None; ident_info; _ } ->
@@ -997,7 +997,7 @@ and statement_desc top cxt (s : J.statement_desc) : cxt =
       let cxt = statements top cxt b in
       ipp_comment cxt L.end_block;
       cxt
-  | Variable l -> variable_declaration top cxt l
+  | Variable l -> variable_declaration ~top cxt l
   | If (e, s1, s2) -> (
       (* TODO: always brace those statements *)
       string cxt L.if_;

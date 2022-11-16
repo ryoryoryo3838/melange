@@ -70,10 +70,14 @@ val external_var :
 val ml_module_as_var : ?loc:Location.t -> ?comment:string -> Ident.t -> t
 
 val runtime_call :
-  string -> (* module_name *)
-            string -> (* fn_name *)
-                      t list -> (* args *)
-                                t
+  ?loc:Location.t ->
+  string ->
+  (* module_name *)
+  string ->
+  (* fn_name *)
+  t list ->
+  (* args *)
+  t
 
 val pure_runtime_call :
   ?loc:Location.t ->
@@ -85,8 +89,11 @@ val pure_runtime_call :
   (* args *)
   t
 
-val runtime_ref : string -> string -> t
-val public_method_call : string -> t -> t -> Int32.t -> t list -> t
+val runtime_ref : ?loc:Location.t -> string -> string -> t
+
+val public_method_call :
+  ?loc:Location.t -> string -> t -> t -> Int32.t -> t list -> t
+
 val str : ?pure:bool -> ?loc:Location.t -> ?comment:string -> string -> t
 val unicode : ?loc:Location.t -> ?comment:string -> string -> t
 
@@ -122,7 +129,7 @@ val zero_int_literal : t
 val zero_float_lit : t
 (* val obj_int_tag_literal : t *)
 
-val is_out : ?comment:string -> t -> t -> t
+val is_out : ?loc:Location.t -> ?comment:string -> t -> t -> t
 (** [is_out e range] is equivalent to [e > range or e <0]
 
 *)
@@ -194,7 +201,7 @@ val to_int32 : ?loc:Location.t -> ?comment:string -> t -> t
 val to_uint32 : ?loc:Location.t -> ?comment:string -> t -> t
 val unchecked_int32_add : ?loc:Location.t -> ?comment:string -> t -> t -> t
 val int32_add : ?loc:Location.t -> ?comment:string -> t -> t -> t
-val offset : t -> int -> t
+val offset : ?loc:Location.t -> t -> int -> t
 val unchecked_int32_minus : ?loc:Location.t -> ?comment:string -> t -> t -> t
 val int32_minus : ?loc:Location.t -> ?comment:string -> t -> t -> t
 val int32_mul : ?loc:Location.t -> ?comment:string -> t -> t -> t
@@ -254,7 +261,7 @@ val js_comp :
   t ->
   t
 
-val not : t -> t
+val not : ?loc:Location.t -> t -> t
 
 val call :
   ?loc:Location.t -> ?comment:string -> info:Js_call_info.t -> t -> t list -> t
@@ -267,8 +274,8 @@ val new_ :
 val array :
   ?loc:Location.t -> ?comment:string -> J.mutable_flag -> J.expression list -> t
 
-val optional_block : J.expression -> J.expression
-val optional_not_nest_block : J.expression -> J.expression
+val optional_block : ?loc:Location.t -> J.expression -> J.expression
+val optional_not_nest_block : ?loc:Location.t -> J.expression -> J.expression
 
 val make_block :
   ?loc:Location.t ->
@@ -320,5 +327,5 @@ val is_null : ?loc:Location.t -> ?comment:string -> t -> t
 val is_undef : ?loc:Location.t -> ?comment:string -> t -> t
 val for_sure_js_null_undefined : J.expression -> bool
 val is_null_undefined : ?loc:Location.t -> ?comment:string -> t -> t
-val resolve_and_apply : string -> t list -> t
+val resolve_and_apply : ?loc:Location.t -> string -> t list -> t
 val make_exception : loc:Location.t -> string -> t

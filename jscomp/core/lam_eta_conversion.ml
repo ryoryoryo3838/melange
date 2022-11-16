@@ -66,11 +66,15 @@ let transform_under_supply n ap_info fn args =
       Lam.function_ ~arity:n ~params:extra_args
         ~attr:Lambda.default_function_attribute
         ~body:(Lam.apply fn (Ext_list.append args extra_lambdas) ap_info)
+          (* TODO(anmonteiro): check this loc *)
+        ~loc:ap_info.ap_loc
   | fn :: args, bindings ->
       let rest : Lam.t =
         Lam.function_ ~arity:n ~params:extra_args
           ~attr:Lambda.default_function_attribute
           ~body:(Lam.apply fn (Ext_list.append args extra_lambdas) ap_info)
+            (* TODO(anmonteiro): check this loc *)
+          ~loc:ap_info.ap_loc
       in
       Ext_list.fold_left bindings rest (fun lam (id, x) ->
           Lam.let_ Strict id x lam)
@@ -149,6 +153,8 @@ let unsafe_adjust_to_arity loc ~(to_ : int) ?(from : int option) (fn : Lam.t) :
               Lam.function_ ~attr:Lambda.default_function_attribute ~arity:0
                 ~params:[]
                 ~body:(Lam.apply new_fn [ Lam.unit ] ap_info)
+                  (* TODO(anmonteiro): check this loc *)
+                ~loc
             in
 
             match wrapper with

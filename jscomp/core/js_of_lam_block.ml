@@ -40,10 +40,10 @@ let make_block ?loc mutable_flag (tag_info : Lam_tag_info.t) tag args =
 (*       (E.int  ?comment:(Lam_compile_util.comment_of_tag_info tag_info) tag   *)
 (*        :: args) *)
 
-let field (field_info : Lam_compat.field_dbg_info) e (i : int32) =
+let field ?loc (field_info : Lam_compat.field_dbg_info) e (i : int32) =
   match field_info with
   | Fld_na _ | Fld_tuple | Fld_array ->
-      E.array_index_by_int
+      E.array_index_by_int ?loc
         ?comment:(Lam_compat.str_of_field_info field_info)
         e i
   | Fld_poly_var_content -> E.poly_var_value_access e
@@ -58,9 +58,9 @@ let field (field_info : Lam_compat.field_dbg_info) e (i : int32) =
 
 let field_by_exp e i = E.array_index e i
 
-let set_field (field_info : Lam_compat.set_field_dbg_info) e i e0 =
+let set_field ?loc (field_info : Lam_compat.set_field_dbg_info) e i e0 =
   match field_info with
-  | Fld_set_na -> E.assign_by_int e i e0
+  | Fld_set_na -> E.assign_by_int ?loc e i e0
   | Fld_record_extension_set name -> E.extension_assign e i name e0
   | Fld_record_inline_set name | Fld_record_set name ->
       E.record_assign e i name e0
