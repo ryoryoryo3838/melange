@@ -143,7 +143,6 @@ let no_export (rest : Parsetree.structure) : Parsetree.structure =
 
 let after_parsing_impl ppf fname (ast : Parsetree.structure) =
   let outputprefix = Config_util.output_prefix fname in
-  Format.eprintf "fname : %s\n%!" fname;
   Js_config.all_module_aliases :=
     !Bs_clflags.assume_no_mli = Mli_non_exists && all_module_alias ast;
   Ast_config.iter_on_bs_config_stru ast;
@@ -189,8 +188,7 @@ let after_parsing_impl ppf fname (ast : Parsetree.structure) =
            processing, as `[@@@config {flags = [| ... |]}]` could have added to
            package specs. *)
         let package_info = Js_packages_state.get_packages_info () in
-        Lam_compile_main.lambda_as_module_with_sourcemap ~source_name:fname
-          ~package_info js_program outputprefix);
+        Lam_compile_main.lambda_as_module ~package_info js_program outputprefix);
     process_with_gentype (outputprefix ^ ".cmt")
 
 let implementation ~parser ppf fname =
@@ -216,8 +214,8 @@ let implementation_cmj _ppf fname =
   (* this is needed because the path is used to find other modules path *)
   Res_compmisc.init_path ();
   let cmj = Js_cmj_format.from_file fname in
-  Lam_compile_main.lambda_as_module_with_sourcemap ~source_name:fname
-    ~package_info:cmj.package_spec cmj.delayed_program
+  Lam_compile_main.lambda_as_module ~package_info:cmj.package_spec
+    cmj.delayed_program
     (Config_util.output_prefix fname)
 
 let make_structure_item ~ns cunit : Parsetree.structure_item =
