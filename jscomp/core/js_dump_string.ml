@@ -81,11 +81,11 @@ let escape_to_buffer f (* ?(utf=false)*) s =
           f +> "\\x";
           f +> Array.unsafe_get array_conv (c lsr 4);
           f +> Array.unsafe_get array_conv (c land 0xf)
-      | '\128' .. '\255' (* when not utf*) ->
-          let c = Char.code c in
-          f +> "\\x";
-          f +> Array.unsafe_get array_conv (c lsr 4);
-          f +> Array.unsafe_get array_conv (c land 0xf)
+      (* | '\128' .. '\255' (* when not utf*) -> *)
+      (*     let c = Char.code c in *)
+      (*     f +> "\\x"; *)
+      (*     f +> Array.unsafe_get array_conv (c lsr 4); *)
+      (*     f +> Array.unsafe_get array_conv (c land 0xf) *)
       | '\"' -> f +> "\\\"" (* quote*)
       | _ -> f +> Array.unsafe_get array_str1 (Char.code c)
     done
